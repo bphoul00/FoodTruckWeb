@@ -27,7 +27,7 @@ public class FetchRandomQuoteTask {
 
   @Autowired private CitationRepository repository;
 
-  // @Scheduled(cron="*/2 * * * * ?") // à toutes les 2 secondes.
+  @Scheduled(cron="0 */1 * * * ?") // à toutes les 2 secondes.
   // Actuellement désactivé.
   public void execute() {
     Arrays.asList(new RestTemplate().getForObject(URL, RandomQuote[].class)).stream()
