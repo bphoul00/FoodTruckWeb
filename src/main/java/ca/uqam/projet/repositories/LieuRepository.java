@@ -13,7 +13,7 @@ import org.springframework.jdbc.support.*;
 import org.springframework.stereotype.*;
 
 @Component
-public class ActivitesRepository {
+public class LieuRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -22,22 +22,22 @@ public class ActivitesRepository {
             = " select"
             + "     *"
             + " from"
-            + "   activites";
+            + "   lieu";
 
-    public List<Activites> findAll() {
-        return jdbcTemplate.query(FIND_ALL_STMT, new ActivitesRowMapper());
+    public List<Lieu> findAll() {
+        return jdbcTemplate.query(FIND_ALL_STMT, new LieuRowMapper());
     }
 
     private static final String FIND_BY_ID_STMT
             = " select"
             + "     *"
             + " from"
-            + "   activites"
+            + "   lieu"
             + " where"
             + "   id = ?";
 
-    public Activites findById(int id) {
-        return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new ActivitesRowMapper());
+    public Lieu findById(int id) {
+        return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new LieuRowMapper());
     }
     /*
   private static final String FIND_BY_CONTENU_STMT =
@@ -56,16 +56,27 @@ public class ActivitesRepository {
 
   public List<Citation> findByContenu(String... tsterms) {
     String tsquery = Arrays.stream(tsterms).collect(Collectors.joining(" & "));
-    return jdbcTemplate.query(FIND_BY_CONTENU_STMT, new Object[]{tsquery}, new ActivitesRowMapper());
+    return jdbcTemplate.query(FIND_BY_CONTENU_STMT, new Object[]{tsquery}, new LieuRowMapper());
   }
      */
     private static final String INSERT_STMT
-            = " insert into activites (id, nom, description, arrondissement, lieuID)"
-            + " values (?, ?, ?, ? , ?)"
+            = " insert into lieu (lieuid, nom, lat, lng)"
+            + " values (?, ?, ?, ? )"
             + " on conflict do nothing";
 
+    public int insert(Lieu lieu) {
+        return jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(INSERT_STMT);
+            ps.setInt(1, lieu.getId());
+            ps.setString(2, lieu.getNom());
+            ps.setDouble(3, lieu.getLat());
+            ps.setDouble(4, lieu.getLng());
+            return ps;
+        });
+    }
+
     private static final String CLEAR_STMT
-            = " delete from activites";
+            = " delete from lieu";
 
     public int clear() {
         return jdbcTemplate.update(conn -> {
@@ -74,30 +85,15 @@ public class ActivitesRepository {
         });
     }
 
-    public int insert(Activites activite) {
-        return jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(INSERT_STMT);
-            ps.setInt(1, activite.getId());
-            ps.setString(2, activite.getNom());
-            ps.setString(3, activite.getDescription());
-            ps.setString(4, activite.getArrondissement());
-            ps.setInt(5, activite.getLieuId());
-            return ps;
-        });
-    }
-
 }
 
-class ActivitesRowMapper implements RowMapper<Activites> {
+class LieuRowMapper implements RowMapper<Lieu> {
 
-    public Activites mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new Activites(
-                rs.getInt("id"),
+    public Lieu mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new Lieu(
                 rs.getString("nom"),
-                rs.getString("description"),
-                rs.getString("arrondissement"),
-                rs.getInt("lieuID"),
-                rs.getInt("datesID"));
+                rs.getDouble("lat"),
+                rs.getDouble("lng"));
     }
 
 }

@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class ApplicationController {
 
-  @Autowired CitationRepository repository;
+    @Autowired
+    CitationRepository repository;
 
-  @RequestMapping("/")
-  public String index(Model model) {
-    return "index";
-  }
+    @RequestMapping("/")
+    public String index(Model model) {
+        return "index";
+    }
 }

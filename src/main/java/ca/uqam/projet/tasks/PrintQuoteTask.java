@@ -9,13 +9,14 @@ import org.springframework.scheduling.annotation.*;
 @Component
 public class PrintQuoteTask {
 
-  private static final Logger log = LoggerFactory.getLogger(PrintQuoteTask.class);
+    private static final Logger log = LoggerFactory.getLogger(PrintQuoteTask.class);
 
-  @Autowired CitationRepository repository;
+    @Autowired
+    CitationRepository repository;
 
-  // @Scheduled(cron="*/10 * * * * ?") // à toutes les 10 secondes.
-  // Actuellement désactivé.
-  public void execute() {
-    log.info(repository.findById(1).toString());
-  }
+    // @Scheduled(cron="*/10 * * * * ?") // à toutes les 10 secondes.
+    // Actuellement désactivé.
+    public void execute() {
+        log.info(repository.findById(1).toString());
+    }
 }
