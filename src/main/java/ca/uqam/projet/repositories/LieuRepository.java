@@ -39,38 +39,20 @@ public class LieuRepository {
     public Lieu findById(int id) {
         return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new LieuRowMapper());
     }
-    /*
-  private static final String FIND_BY_CONTENU_STMT =
-      " select"
-    + "     id"
-    + "   , ts_headline(contenu, q, 'HighlightAll = true') as contenu"
-    + "   , auteur"
-    + " from"
-    + "     citations"
-    + "   , to_tsquery(?) as q"
-    + " where"
-    + "   contenu @@ q"
-    + " order by"
-    + "   ts_rank_cd(to_tsvector(contenu), q) desc"
-    ;
 
-  public List<Citation> findByContenu(String... tsterms) {
-    String tsquery = Arrays.stream(tsterms).collect(Collectors.joining(" & "));
-    return jdbcTemplate.query(FIND_BY_CONTENU_STMT, new Object[]{tsquery}, new LieuRowMapper());
-  }
-     */
-    private static final String INSERT_STMT
-            = " insert into lieu (lieuid, nom, lat, lng)"
-            + " values (?, ?, ?, ? )"
+
+    private String getINSERT_STMT(Lieu lieu){
+        return " insert into lieu (id ,activitesID , nom, point)"
+            + " values (?, ?, ?, ST_GeomFromText('POINT("+ lieu.getLng()+" "+lieu.getLat()  + ")', 4326) )"
             + " on conflict do nothing";
+    }
 
     public int insert(Lieu lieu) {
         return jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(INSERT_STMT);
+            PreparedStatement ps = conn.prepareStatement(getINSERT_STMT(lieu));
             ps.setInt(1, lieu.getId());
-            ps.setString(2, lieu.getNom());
-            ps.setDouble(3, lieu.getLat());
-            ps.setDouble(4, lieu.getLng());
+            ps.setInt(2, lieu.getActivitesID());
+            ps.setString(3, lieu.getNom());
             return ps;
         });
     }

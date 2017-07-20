@@ -6,3 +6,9 @@ CREATE DATABASE screencasts
     LC_CTYPE = 'English_Canada.1252'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
+
+\c screencasts
+	
+CREATE EXTENSION postgis;
+
+SELECT postgis_full_version();

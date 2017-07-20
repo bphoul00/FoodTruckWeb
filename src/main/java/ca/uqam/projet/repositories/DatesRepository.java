@@ -39,36 +39,20 @@ public class DatesRepository {
     public Dates findById(int id) {
         return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new DatesRowMapper());
     }
-    /*
-  private static final String FIND_BY_CONTENU_STMT =
-      " select"
-    + "     id"
-    + "   , ts_headline(contenu, q, 'HighlightAll = true') as contenu"
-    + "   , auteur"
-    + " from"
-    + "     citations"
-    + "   , to_tsquery(?) as q"
-    + " where"
-    + "   contenu @@ q"
-    + " order by"
-    + "   ts_rank_cd(to_tsvector(contenu), q) desc"
-    ;
 
-  public List<Citation> findByContenu(String... tsterms) {
-    String tsquery = Arrays.stream(tsterms).collect(Collectors.joining(" & "));
-    return jdbcTemplate.query(FIND_BY_CONTENU_STMT, new Object[]{tsquery}, new LieuRowMapper());
-  }
-     */
-    private static final String INSERT_STMT
-            = " insert into dates (id, dates)"
-            + " values (?, ?)"
+
+        private String getINSERT_STMT(Dates dates){
+        return " insert into dates (id, activitesID, dates, schedule)"
+            + " values (?, ?, ?, (DATE '"+dates.getMonth()+"-"+dates.getMonth()+"-"+dates.getDay()+"' ) )"
             + " on conflict do nothing";
-
+    }
+    
     public int insert(Dates dates) {
         return jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(INSERT_STMT);
+            PreparedStatement ps = conn.prepareStatement(getINSERT_STMT(dates));
             ps.setInt(1, dates.getId());
-            ps.setString(2, dates.getDates());
+            ps.setInt(2, dates.getActivitesID());
+            ps.setString(3, dates.getDates());
             return ps;
         });
     }
@@ -89,7 +73,8 @@ class DatesRowMapper implements RowMapper<Dates> {
 
     public Dates mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Dates(
-                rs.getInt("datesid"),
+                rs.getInt("id"),
+                rs.getInt("activitesID"),
                 rs.getString("dates")
         );
     }

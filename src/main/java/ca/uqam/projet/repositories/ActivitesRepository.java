@@ -18,7 +18,13 @@ public class ActivitesRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private static final String FIND_ALL_STMT
+    private static final String FIND_ALL_STMT        
+            = " select"
+            + "     *"
+            + " from"
+            + "   activites";
+    
+        private static final String FIND_BY_DISTANCE_LOCATION_TIME        
             = " select"
             + "     *"
             + " from"
@@ -39,29 +45,15 @@ public class ActivitesRepository {
     public Activites findById(int id) {
         return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new ActivitesRowMapper());
     }
-    /*
-  private static final String FIND_BY_CONTENU_STMT =
-      " select"
-    + "     id"
-    + "   , ts_headline(contenu, q, 'HighlightAll = true') as contenu"
-    + "   , auteur"
-    + " from"
-    + "     citations"
-    + "   , to_tsquery(?) as q"
-    + " where"
-    + "   contenu @@ q"
-    + " order by"
-    + "   ts_rank_cd(to_tsvector(contenu), q) desc"
-    ;
-
-  public List<Citation> findByContenu(String... tsterms) {
-    String tsquery = Arrays.stream(tsterms).collect(Collectors.joining(" & "));
-    return jdbcTemplate.query(FIND_BY_CONTENU_STMT, new Object[]{tsquery}, new ActivitesRowMapper());
-  }
-     */
+   
+    public Activites findByDistanceLocationAndTime(String du, String au, int rayon, double lat, double lng) {
+        return jdbcTemplate.queryForObject(FIND_BY_DISTANCE_LOCATION_TIME, new Object[]{rayon}, new ActivitesRowMapper());
+    }
+    
+    
     private static final String INSERT_STMT
-            = " insert into activites (id, nom, description, arrondissement, lieuID)"
-            + " values (?, ?, ?, ? , ?)"
+            = " insert into activites (id, nom, description, arrondissement)"
+            + " values (?, ?, ?, ? )"
             + " on conflict do nothing";
 
     private static final String CLEAR_STMT
@@ -81,23 +73,19 @@ public class ActivitesRepository {
             ps.setString(2, activite.getNom());
             ps.setString(3, activite.getDescription());
             ps.setString(4, activite.getArrondissement());
-            ps.setInt(5, activite.getLieuId());
             return ps;
         });
     }
-
 }
 
 class ActivitesRowMapper implements RowMapper<Activites> {
-
     public Activites mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Activites(
                 rs.getInt("id"),
                 rs.getString("nom"),
                 rs.getString("description"),
-                rs.getString("arrondissement"),
-                rs.getInt("lieuID"),
-                rs.getInt("datesID"));
+                rs.getString("arrondissement")
+        );
     }
 
 }

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class ApplicationController {
 
     @Autowired
-    CitationRepository repository;
+    ActivitesRepository repository;
 
     @RequestMapping("/")
     public String index(Model model) {

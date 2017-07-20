@@ -37,7 +37,7 @@ public class FetchActivites {
     @Autowired
     private ActivitesRepository repository;
 
-    @Scheduled(cron = "*/10 * * * * ?") // à toutes les 2 secondes.
+    @Scheduled(cron = "*/45 * * * * ?") // à toutes les 2 secondes.
     // Actuellement désactivé.
     public void execute() {
 
@@ -47,29 +47,30 @@ public class FetchActivites {
             ArrayList<Activites> myObjects = mapper.readValue(jsonUrl, new TypeReference<List<Activites>>() {
             });
             //Clear
-            repository.clear();
             lieuRepository.clear();
             datesRepository.clear();
+            repository.clear();
+            
             for (Activites activite : myObjects) {
-                int newID = IDMaker.createID();
+                int newLieuID = IDMaker.createID();
 
                 //set foreign LieuID
-                activite.setLieuId(newID);
-                Lieu newlieu = activite.getLieu();
-                newlieu.setId(newID);
-                activite.setLieu(newlieu);
+                Lieu bufferLieu = activite.getLieu();
+                bufferLieu.setId(newLieuID);
+                bufferLieu.setActivitesID(activite.getId());
+                activite.setLieu(bufferLieu);
+                
+                log.info(activite.toString());
+                repository.insert(activite);
+                lieuRepository.insert(activite.getLieu());
 
                 //set foreign DatesID
-                activite.setDatesId(newID);
                 for (String datesString : activite.getDates()) {
-                    Dates newDates = new Dates(newID, datesString);
+                    int newDatesID = IDMaker.createID();
+                    Dates newDates = new Dates(newDatesID,activite.getId(), datesString);
                     datesRepository.insert(newDates);
                 }
 
-                log.info(activite.toString());
-                System.out.println(activite.getLieu().toString() + " " + activite.getLieu().getId());
-                lieuRepository.insert(activite.getLieu());
-                repository.insert(activite);
             }
 
         } catch (IOException ex) {
@@ -77,24 +78,8 @@ public class FetchActivites {
         }
 
     }
-    /*
-  private Activites asActivites(ListActivites q) {
-    return new Activites(q.id, q.nom, q.description, q.arrondissement, q.lieu, q.dates);
-  }
-     */
+    
+    
 
 }
-/*
-class ListActivites {
-  @JsonProperty("id") int id;
-  @JsonProperty("nom") String nom;
-  @JsonProperty("description") String description;
-  @JsonProperty("arrondissement") String arrondissement;
-  @JsonProperty("lieu") Lieu lieu;
-  @JsonProperty("dates") ArrayList<String> dates;
- // @JsonProperty("dates") String dates;
- // @JsonProperty("lieuNom") String lieuNom;
-  //@JsonProperty("lag") int lag;
-  //@JsonProperty("lng") int lng;
-}
- */
+

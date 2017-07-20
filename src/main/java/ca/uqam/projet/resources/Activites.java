@@ -10,8 +10,6 @@ public class Activites {
     private String description;
     private String arrondissement;
     private Lieu lieu;
-    private int lieuId;
-    private int datesId;
     private ArrayList<String> dates;
 
     public Activites() {
@@ -27,14 +25,11 @@ public class Activites {
 
     }
 
-    public Activites(int id, String nom, String description, String arrondissement, int lieuId, int datesId) {
+    public Activites(int id, String nom, String description, String arrondissement) {
         this.id = id;
         this.nom = nom;
         this.description = description;
         this.arrondissement = arrondissement;
-        this.lieuId = lieuId;
-        this.datesId = datesId;
-
     }
 
     @JsonProperty
@@ -67,13 +62,7 @@ public class Activites {
         return dates;
     }
 
-    public int getLieuId() {
-        return lieuId;
-    }
 
-    public int getDatesId() {
-        return datesId;
-    }
 
     public void setId(int id) {
         this.id = id;
@@ -99,13 +88,6 @@ public class Activites {
         this.dates = dates;
     }
 
-    public void setLieuId(int lieuId) {
-        this.lieuId = lieuId;
-    }
-
-    public void setDatesId(int datesId) {
-        this.datesId = datesId;
-    }
 
     @Override
     public String toString() {

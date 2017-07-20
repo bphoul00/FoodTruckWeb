@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 public class Lieu {
 
     private int id;
+    private int activitesID;
     private String nom;
     private double lat;
     private double lng;
@@ -58,6 +59,14 @@ public class Lieu {
 
     public void setId(int id) {
         this.id = id;
+    }
+    
+    public int getActivitesID() {
+        return activitesID;
+    }
+
+    public void setActivitesID(int activitesID) {
+        this.activitesID = activitesID;
     }
 
     @Override
