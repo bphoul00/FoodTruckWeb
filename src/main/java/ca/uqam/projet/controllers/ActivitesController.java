@@ -4,6 +4,8 @@ import ca.uqam.projet.repositories.*;
 import ca.uqam.projet.resources.*;
 import java.util.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,24 +15,37 @@ public class ActivitesController {
     ActivitesRepository repository;
 
     @RequestMapping(value = "/activites-375e", method = RequestMethod.GET)
-    public List<Activites> findByDistanceLocationAndTime(@RequestParam(value = "du", required = false) String du,
+    public ResponseEntity<List<Activites>> findByDistanceLocationAndTime(
+            @RequestParam(value = "du", required = false) String du,
             @RequestParam(value = "au", required = false) String au,
             @RequestParam(value = "lng", required = false) Double lng,
             @RequestParam(value = "lat", required = false) Double lat,
             @RequestParam(value = "rayon", required = false) Double rayon) {
         if (du != null && au != null && lng != null && lat != null && rayon != 0) {
-            return repository.findByDistanceLocationAndTime(du, au, lng, lat, rayon);
+            List<Activites> ListA = repository.findByDistanceLocationAndTime(du, au, lng, lat, rayon);
+            if (ListA == null) {
+                return new ResponseEntity<>(ListA, HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(ListA, HttpStatus.OK);
         } else if (du != null && au != null) {
-            return repository.findByTime(du, au);
+            List<Activites> ListA = repository.findByTime(du, au);
+            if (ListA == null) {
+                return new ResponseEntity<>(ListA, HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(ListA, HttpStatus.OK);
         } else if (lng != null && lat != null && rayon != null) {
-            return repository.findByDistanceLocation(lng, lat, rayon);
+            List<Activites> ListA = repository.findByDistanceLocation(lng, lat, rayon);
+            if (ListA == null) {
+                return new ResponseEntity<>(ListA, HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(ListA, HttpStatus.OK);
         } else {
-            return null;
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @RequestMapping(value = "/activites-375e", method = RequestMethod.PUT)
-    public Activites updateEvent(
+    public ResponseEntity<Activites> updateEvent(
             @RequestParam(value = "id", required = true) int id,
             @RequestParam(value = "nom", required = false) String nom,
             @RequestParam(value = "description", required = false) String description,
@@ -40,28 +55,40 @@ public class ActivitesController {
             @RequestParam(value = "lat", required = false) Double lat,
             @RequestParam(value = "date", required = false) String[] date) {
         {
-            return repository.updatedEvent(id, nom, description, arrondissement, nomLieu, lng, lat, date);
+            Activites returnAct = repository.updatedEvent(id, nom, description, arrondissement, nomLieu, lng, lat, date);
+            if (returnAct == null) {
+                return new ResponseEntity<>(returnAct, HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(returnAct, HttpStatus.ACCEPTED);
         }
     }
 
     @RequestMapping(value = "/activites-375e", method = RequestMethod.POST)
-    public Activites createdEvent(
+    public ResponseEntity<Activites> createdEvent(
             @RequestParam(value = "id", required = true) int id,
             @RequestParam(value = "nom", required = true) String nom,
-            @RequestParam(value = "description", required = false, defaultValue = "vide") String description,
-            @RequestParam(value = "arrondissement", required = true) String arrondissement,
-            @RequestParam(value = "nomLieu", required = true) String nomLieu,
+            @RequestParam(value = "description", required = false, defaultValue = "") String description,
+            @RequestParam(value = "arrondissement", required = false, defaultValue = "") String arrondissement,
+            @RequestParam(value = "nomLieu", required = false, defaultValue = "") String nomLieu,
             @RequestParam(value = "lng", required = true) Double lng,
             @RequestParam(value = "lat", required = true) Double lat,
             @RequestParam(value = "date", required = true) String[] date) {
         {
-            return repository.createdEvent(id, nom, description, arrondissement, nomLieu, lng, lat, date);
+            Activites returnAct = repository.createdEvent(id, nom, description, arrondissement, nomLieu, lng, lat, date);
+            if (returnAct == null) {
+                return new ResponseEntity<>(returnAct, HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(returnAct, HttpStatus.CREATED);
         }
     }
 
     @RequestMapping(value = "/activites-375e/{id}", method = RequestMethod.DELETE)
-    public int deleteEvent(@PathVariable("id") int id) {
-        return repository.deleteEvent(id);
+    public ResponseEntity<Integer> deleteEvent(@PathVariable("id") int id) {
+        int rowDeleted = repository.deleteEvent(id);
+        if (rowDeleted <= 0) {
+            return new ResponseEntity<>(rowDeleted, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(rowDeleted, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping("/activites")

@@ -1,6 +1,7 @@
 package ca.uqam.projet.repositories;
 
 import ca.uqam.projet.resources.*;
+import ca.uqam.projet.tasks.Validation;
 import java.sql.*;
 import java.util.*;
 import org.springframework.beans.factory.annotation.*;
@@ -16,6 +17,7 @@ public class ActivitesRepository {
     LieuRepository lieuRepository;
     @Autowired
     DatesRepository datesRepository;
+    Validation validation = new Validation();
 
     private static final String FIND_ALL_STMT
             = " select"
@@ -56,6 +58,9 @@ public class ActivitesRepository {
     }
 
     public List<Activites> findByDistanceLocationAndTime(String duString, String auString, double lng, double lat, double rayon) {
+        if (!validation.findByDistanceLocationAndTimeValidation(duString, auString, lng, lat, rayon)) {
+            return null;
+        }
         List<Activites> listAct = jdbcTemplate.query(getFIND_BY_DISTANCE_LOCATION_TIME(duString, auString, lng, lat, rayon), new ActivitesRowMapper());
         listAct = joinListDatesAndLieu(listAct);
         return listAct;
@@ -70,6 +75,9 @@ public class ActivitesRepository {
     }
 
     public List<Activites> findByTime(String duString, String auString) {
+        if (!validation.findByTimeValidation(duString, auString)) {
+            return null;
+        }
         List<Activites> listAct = jdbcTemplate.query(getFIND_BY_TIME(duString, auString), new ActivitesRowMapper());
         listAct = joinListDatesAndLieu(listAct);
         return listAct;
@@ -84,6 +92,9 @@ public class ActivitesRepository {
     }
 
     public List<Activites> findByDistanceLocation(double lng, double lat, double rayon) {
+        if (!validation.findByTimeValidation(lng, lat, rayon)) {
+            return null;
+        }
         List<Activites> listAct = jdbcTemplate.query(getFIND_BY_DISTANCE_LOCATION(lng, lat, rayon), new ActivitesRowMapper());
         listAct = joinListDatesAndLieu(listAct);
         return listAct;
@@ -131,6 +142,9 @@ public class ActivitesRepository {
     }
 
     public Activites createdEvent(int id, String nom, String description, String arrondissement, String nomLieu, double lng, double lat, String[] dates) {
+        if (!validation.EventValidation(lng, lat, dates)) {
+            return null;
+        }
         Activites activite = new Activites(id, nom, description, arrondissement);
         ArrayList<Dates> listDate = new ArrayList<>();
         for (String datesString : dates) {
@@ -145,21 +159,26 @@ public class ActivitesRepository {
         activite.setLieu(lieu);
 
         int numberRowCreated = insert(activite);
-        if (numberRowCreated > 0) {
-            lieuRepository.insert(activite.getLieu());
-
-            //set foreign DatesID
-            for (Dates date : activite.getDates()) {
-                int newDatesID = IDMaker.createID();
-                date.setId(newDatesID);
-                date.setActivitesID(activite.getId());
-                datesRepository.insert(date);
-            }
+        if (numberRowCreated <= 0) {
+            return null;
         }
+        lieuRepository.insert(activite.getLieu());
+
+        //set foreign DatesID
+        for (Dates date : activite.getDates()) {
+            int newDatesID = IDMaker.createID();
+            date.setId(newDatesID);
+            date.setActivitesID(activite.getId());
+            datesRepository.insert(date);
+        }
+
         return activite;
     }
 
     public Activites updatedEvent(int id, String nom, String description, String arrondissement, String nomLieu, Double lng, Double lat, String[] dates) {
+        if (!validation.EventValidation(lng, lat, dates)) {
+            return null;
+        }
         Activites currentActivite = findById(id);
         ArrayList<Dates> newListDate = new ArrayList<>();
 
@@ -225,7 +244,10 @@ public class ActivitesRepository {
 
     public Activites joinDatesAndLieu(Activites activite) {
         activite.setDates((ArrayList) datesRepository.findByActivitesId(activite.getId()));
-        activite.setLieu(lieuRepository.findByActivitesId(activite.getId()));
+        Lieu newLieu = lieuRepository.findByActivitesId(activite.getId());
+        if(newLieu!=null){
+        activite.setLieu(newLieu);
+        }
         return activite;
     }
 

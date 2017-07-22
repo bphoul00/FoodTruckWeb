@@ -16,4 +16,5 @@ public class ApplicationController {
     public String index(Model model) {
         return "index";
     }
+
 }

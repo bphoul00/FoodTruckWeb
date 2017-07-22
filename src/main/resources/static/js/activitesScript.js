@@ -1,15 +1,46 @@
 var baseURL = new URL(window.location.origin);
 
+var renderActivites = function (activite) {
+    createMarker(activite.lieu.lng, activite.lieu.lat);
+    mymap.fitBounds(layerMarkers.getBounds());
+    return '<tr><td>'+activite.id+'</td><td>'+activite.nom+'</td><td>'+activite.description +'</td></tr>';
+};
+
+var alert = '<div class="alert alert-success"><strong>Success!</strong> This alert box could indicate a successful or positive action. </div>';
+
+
+var test = function (str) {
+    document.getElementById('alert').innerHTML = str;
+};
+
+
+/*
+  <h2>Alerts</h2>
+  <div class="alert alert-success">
+    <strong>Success!</strong> This alert box could indicate a successful or positive action.
+  </div>
+  <div class="alert alert-info">
+    <strong>Info!</strong> This alert box could indicate a neutral informative change or action.
+  </div>
+  <div class="alert alert-warning">
+    <strong>Warning!</strong> This alert box could indicate a warning that might need attention.
+  </div>
+  <div class="alert alert-danger">
+    <strong>Danger!</strong> This alert box could indicate a dangerous or potentially negative action.
+  </div>
+ */
 
 var renderActivites = function (activite) {
     createMarker(activite.lieu.lng, activite.lieu.lat);
     mymap.fitBounds(layerMarkers.getBounds());
-    return '<li>' + activite.nom + ' &mdash;' + activite.description + '</li>';
+    return '<tr class=\'clickable-row\' onclick=changeCenter('+activite.lieu.lng+','+activite.lieu.lat+') ><td>'+activite.id+'</td><td>'+activite.nom+'</td><td>'+activite.description +'</td></tr>';
 };
 
 var renderListeActivites = function (activites) {
-    return '<ul>' + activites.map(renderActivites).join('') + '</ul>';
+    return '<table class="table"><thead><tr><th>ID</th><th>Nom de l\'activite</th><th>Description de l\'activite</th> </tr></thead><tbody>' + activites.map(renderActivites).join('') + '</tbody></table>';
 };
+
+function changeCenter(lat, lng){mymap.setView(new L.LatLng(lat, lng),14)};
 
 var installerListeActivites = function (listeActivitesHtml) {
     document.getElementById('liste-activites').innerHTML = listeActivitesHtml;
@@ -33,7 +64,7 @@ function update(inputID, inputNom, inputDescription, inputArrondissement, inputN
     url.searchParams.append('lng', inputLongitude.value);
     url.searchParams.append('lat', inputLatitude.value);
     url.searchParams.append('date', inputDate.value);
-    if (reDate.test(inputDate.value) && testcoordinate(inputLatitude.value, inputDate.value)) {
+    if (reDate.test(inputDate.value) && testcoordinate(inputLatitude, inputDate)) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("PUT", url, true);
         xhttp.send();
@@ -54,7 +85,7 @@ function create(inputID, inputNom, inputDescription, inputArrondissement, inputN
     url.searchParams.append('lat', inputLatitude.value);
     url.searchParams.append('date', inputDate.value);
     console.dir(url);
-    if (reDate.test(inputDate.value) && testcoordinate(inputLatitude.value, inputDate.value)) {
+    if (reDate.test(inputDate.value) && testcoordinate(inputLatitude, inputDate)) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", url, true);
         xhttp.send();
@@ -70,10 +101,22 @@ function deleteById(inputID) {
     var xhttp = new XMLHttpRequest();
     xhttp.open("DELETE", url, true);
     xhttp.send();
+    test(alert);
+    fetchActivites(new URL('/activites', baseURL));
+
 }
 ;
 
-var readFormulaire = function () {
+var search = function (date1,date2) {
+  removeMarkers();
+  var url = new URL('/activites-375e', baseURL);
+  url.searchParams.append('du', date1);
+  url.searchParams.append('au', date2);
+  console.dir(url);
+  fetchActivites(url);
+};
+
+var readSearchFormulaire = function () {
     var form = document.getElementById('search-form');
     var startingDate = document.getElementById('inputStartingDate');
     var endingDate = document.getElementById('inputEndingDate');
@@ -92,7 +135,7 @@ var requestType = function () {
     }
 }
 
-var readFormulaire2 = function () {
+var readModifyFormulaire = function () {
     var form = document.getElementById('activites-form');
     var inputID = document.getElementById('inputID');
     var inputNom = document.getElementById('inputNom');
@@ -104,13 +147,13 @@ var readFormulaire2 = function () {
     var inputDate = document.getElementById('inputDate');
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-        if (requestType() == "post")
+        if (requestType() === "post")
         {
             create(inputID, inputNom, inputDescription, inputArrondissement, inputNomLieu, inputLongitude, inputLatitude, inputDate);
-        } else if (requestType() == "put")
+        } else if (requestType() === "put")
         {
             update(inputID, inputNom, inputDescription, inputArrondissement, inputNomLieu, inputLongitude, inputLatitude, inputDate);
-        } else if (requestType() == "delete")
+        } else if (requestType() === "delete")
         {
             deleteById(inputID);
         }
@@ -120,8 +163,8 @@ var readFormulaire2 = function () {
 
 document.addEventListener('DOMContentLoaded', function () {
     fetchActivites(new URL('/activites', baseURL));
-    readFormulaire2();
-    readFormulaire();
+    readModifyFormulaire();
+    readSearchFormulaire();
 });
 
 
@@ -157,11 +200,31 @@ var reDate = new RegExp("^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$
 
 function testcoordinate(lat, lng) {
     console.dir(lat);
-    if (lat < -90 || lat > 90) {
+    if (lat.value < -90 || lat.value > 90) {
         return false;
-    } else if (lng < -180 || lng > 180) {
+    } else if (lng.value < -180 || lng.value > 180) {
         return false;
     } else {
         return true;
     }
+}
+
+function idOnly(){
+    document.getElementById("inputNom").disabled = true;
+    document.getElementById("inputDescription").disabled = true;
+    document.getElementById("inputArrondissement").disabled = true;
+    document.getElementById("inputNomLieu").disabled = true;
+    document.getElementById("inputLongitude").disabled = true;
+    document.getElementById("inputLatitude").disabled = true;
+    document.getElementById("inputDate").disabled = true;
+}
+
+function idNotOnly(){
+    document.getElementById("inputNom").disabled = false;
+    document.getElementById("inputDescription").disabled = false;
+    document.getElementById("inputArrondissement").disabled = false;
+    document.getElementById("inputNomLieu").disabled = false;
+    document.getElementById("inputLongitude").disabled = false;
+    document.getElementById("inputLatitude").disabled = false;
+    document.getElementById("inputDate").disabled = false;
 }

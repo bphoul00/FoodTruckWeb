@@ -43,20 +43,25 @@
                 <div class="col-md-12">
                     <div id="mapid">
                     </div>
+                    <div class="container">
+                                            <div id="alert">
+
+</div>
+                    </div>
                     <div>
                         <div class="container">
                             <div class="radio">
-                                <label><input type="radio"  name="typeOfRequest"  value="post"/> Creation </label>
+                                <label><input type="radio"  name="typeOfRequest" onclick="idNotOnly()" value="post"/> Creation </label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio"  name="typeOfRequest"  value="put"/> Mise A Jour </label>
+                                <label><input type="radio"  name="typeOfRequest" onclick="idNotOnly()" value="put"/> Mise A Jour </label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio"  name="typeOfRequest"  value="delete"/> Supprime </label>
+                                <label><input type="radio"  name="typeOfRequest" onclick="idOnly()" value="delete"/> Supprime </label>
                             </div>
                         </div>
                         <br/>
-                        <form id="activites-form" class="form-horizontal" action="/activites-375e" method="post">
+                        <form id="activites-form" class="form-horizontal"  method="get">
                             <div class="container">
                                 <div class="col-sm-10">
                                     <label for="inputID">ID:</label>

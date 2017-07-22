@@ -1,6 +1,7 @@
 package ca.uqam.projet.repositories;
 
 import ca.uqam.projet.resources.*;
+import ca.uqam.projet.tasks.Validation;
 import java.sql.*;
 import java.util.*;
 import org.springframework.beans.factory.annotation.*;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.*;
 
 @Component
 public class BixiRepository {
+
+    Validation validation = new Validation();
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -79,6 +82,9 @@ public class BixiRepository {
     }
 
     public List<Bixi> findByDistanceLocationAndNumberBixi(double lat, double lng, double rayon, int numberBixiAvailable) {
+        if (!validation.findByDistanceLocationAndNumberBixiValidation(lat, lng, rayon, numberBixiAvailable)) {
+            return null;
+        }
         List<Bixi> listBixiStation = jdbcTemplate.query(getFIND_BY_DISTANCE_LOCATION_NUMBER_BIXI_STMT(lat, lng, rayon, numberBixiAvailable), new BixiRowMapper());
         return listBixiStation;
 
