@@ -79,8 +79,8 @@ public class ActivitesRepository {
             return null;
         }
         List<Activites> listAct = jdbcTemplate.query(getFIND_BY_TIME(duString, auString), new ActivitesRowMapper());
-        listAct = joinListDatesAndLieu(listAct);
-        return listAct;
+        List<Activites> nlistAct = joinListDatesAndLieu(listAct);
+        return nlistAct;
     }
 
     private String getFIND_BY_DISTANCE_LOCATION(double lng, double lat, double rayon) {

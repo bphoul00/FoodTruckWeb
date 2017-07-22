@@ -1,34 +1,5 @@
 var baseURL = new URL(window.location.origin);
 
-var renderActivites = function (activite) {
-    createMarker(activite.lieu.lng, activite.lieu.lat);
-    mymap.fitBounds(layerMarkers.getBounds());
-    return '<tr><td>'+activite.id+'</td><td>'+activite.nom+'</td><td>'+activite.description +'</td></tr>';
-};
-
-var alert = '<div class="alert alert-success"><strong>Success!</strong> This alert box could indicate a successful or positive action. </div>';
-
-
-var test = function (str) {
-    document.getElementById('alert').innerHTML = str;
-};
-
-
-/*
-  <h2>Alerts</h2>
-  <div class="alert alert-success">
-    <strong>Success!</strong> This alert box could indicate a successful or positive action.
-  </div>
-  <div class="alert alert-info">
-    <strong>Info!</strong> This alert box could indicate a neutral informative change or action.
-  </div>
-  <div class="alert alert-warning">
-    <strong>Warning!</strong> This alert box could indicate a warning that might need attention.
-  </div>
-  <div class="alert alert-danger">
-    <strong>Danger!</strong> This alert box could indicate a dangerous or potentially negative action.
-  </div>
- */
 
 var renderActivites = function (activite) {
     createMarker(activite.lieu.lng, activite.lieu.lat);
@@ -43,14 +14,18 @@ var renderListeActivites = function (activites) {
 function changeCenter(lat, lng){mymap.setView(new L.LatLng(lat, lng),14)};
 
 var installerListeActivites = function (listeActivitesHtml) {
+    document.getElementById('liste-activites').innerHTML = "";
     document.getElementById('liste-activites').innerHTML = listeActivitesHtml;
+    console.dir(listeActivitesHtml);
 };
 
 var fetchActivites = function (url) {
     fetch(url).then(function (resp) {
         return resp.json();
     }).then(function (data) {
-        installerListeActivites(renderListeActivites(data));
+        var a = renderListeActivites(data)
+        console.dir(a);
+        installerListeActivites(a);
     });
 };
 
@@ -84,7 +59,6 @@ function create(inputID, inputNom, inputDescription, inputArrondissement, inputN
     url.searchParams.append('lng', inputLongitude.value);
     url.searchParams.append('lat', inputLatitude.value);
     url.searchParams.append('date', inputDate.value);
-    console.dir(url);
     if (reDate.test(inputDate.value) && testcoordinate(inputLatitude, inputDate)) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", url, true);
@@ -97,11 +71,9 @@ function create(inputID, inputNom, inputDescription, inputArrondissement, inputN
 
 function deleteById(inputID) {
     var url = new URL('/activites-375e/' + inputID.value, baseURL);
-    console.dir(url);
     var xhttp = new XMLHttpRequest();
     xhttp.open("DELETE", url, true);
     xhttp.send();
-    test(alert);
     fetchActivites(new URL('/activites', baseURL));
 
 }
@@ -199,7 +171,6 @@ var reDate = new RegExp("^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$
 
 
 function testcoordinate(lat, lng) {
-    console.dir(lat);
     if (lat.value < -90 || lat.value > 90) {
         return false;
     } else if (lng.value < -180 || lng.value > 180) {
