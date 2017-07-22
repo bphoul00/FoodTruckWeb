@@ -20,6 +20,15 @@ public class Lieu {
 
     }
 
+    public Lieu(String nom, double lat, double lng, int id, int activitesID) {
+        this.nom = nom;
+        this.lat = lat;
+        this.lng = lng;
+        this.id = id;
+        this.activitesID = activitesID;
+
+    }
+
     public Lieu(Lieu input) {
         this.nom = input.nom;
         this.lat = input.lat;
@@ -60,7 +69,7 @@ public class Lieu {
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public int getActivitesID() {
         return activitesID;
     }

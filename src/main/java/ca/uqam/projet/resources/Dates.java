@@ -1,7 +1,6 @@
 package ca.uqam.projet.resources;
 
-import java.sql.Date;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Dates {
 
@@ -12,9 +11,14 @@ public class Dates {
     private int month;
     private int year;
 
-    
-
     public Dates() {
+    }
+
+    public Dates(String dates) {
+        this.dates = dates;
+        year = Integer.parseInt(dates.substring(0, 4));
+        month = Integer.parseInt(dates.substring(5, 7));
+        day = Integer.parseInt(dates.substring(8, 10));
     }
 
     public Dates(Dates date) {
@@ -51,6 +55,7 @@ public class Dates {
         this.activitesID = activitesID;
     }
 
+    @JsonProperty
     public String getDates() {
         return dates;
     }
@@ -85,7 +90,5 @@ public class Dates {
     public void setYear(int year) {
         this.year = year;
     }
-    
-    
 
 }

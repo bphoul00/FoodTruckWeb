@@ -1,0 +1,303 @@
+#%RAML 1.0
+---
+title: INF4375 Projet de session
+baseUri: http://localhost:8080/
+version: v1
+/activites-375e:
+  get:
+    description: Retrieve list of activites base on either time or location or both
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                [
+                  {
+                    "id": 543,
+                    "nom": "Vélo Paradiso au Plateau-Mont-Royal",
+                    "description": "Un vélo projecteur sillonnera les 19 arrondissements de Montréal pour diffuser, sur grand écran, les meilleurs courts-métrages réalisés par des réalisateurs autochtones dans le cadre du Wapikoni mobile, ainsi que des vidéoclips issus de collaborations entre musiciens autochtones et de nos communautés culturelles. Avec : La Bronze et Esther Pennell, Random Recipe et Natasha Kanapé Fontaine, SoCalled et Shauit, Sunny Duval et Laura Niquay, ainsi que Dramatik et Matthew Vachon. Soyez de la partie pour célébrer en musique et en images toute la richesse de notre diversité !",
+                    "arrondissement": "Le Plateau-Mont-Royal",
+                    "lieu":
+                      {
+                        "id": 633,
+                        "activitesID": 9999,
+                        "nom": "Here",
+                        "lat": -45.123,
+                        "lng": 73.123
+                      },
+                    "dates":
+                      [
+                        {
+                          "id": 634,
+                          "activitesID": 9999,
+                          "dates": "2012-12-12",
+                          "day": 12,
+                          "month": 12,
+                          "year": 2012
+                        }
+                      ]
+                  }
+                ]
+    queryParameters:
+      au:
+        displayName: Au date
+        type: string
+        description: End of time
+        example: 2020-12-12
+        required: false
+      du:
+        displayName: Du date
+        type: string
+        description: Start of time
+        example: 2000-12-12
+        required: false
+      lat:
+        displayName: Latitude
+        type: double
+        description: Latitude is the "Y" geographic coordinate
+        example: 75.123
+        required: false
+      lng:
+        displayName: Longitude
+        type: double
+        description: Longitude is the "X" geographic coordinate
+        example: -45.123
+        required: false
+      rayon:
+        displayName: Rayon
+        type: double
+        description: Radius of a circle or sphere is any of the line segments from its center to its perimeter in meter
+        example: 5000
+        required: false
+    put:
+      description: Update a existing activites
+        responses:
+          200:
+            body:
+              application/json:
+                example:
+                  [
+                    {
+                      "id": 543,
+                      "nom": "Vélo Paradiso au Plateau-Mont-Royal",
+                      "description": "Un vélo projecteur sillonnera les 19 arrondissements de Montréal pour diffuser, sur grand écran, les meilleurs courts-métrages réalisés par des réalisateurs autochtones dans le cadre du Wapikoni mobile, ainsi que des vidéoclips issus de collaborations entre musiciens autochtones et de nos communautés culturelles. Avec : La Bronze et Esther Pennell, Random Recipe et Natasha Kanapé Fontaine, SoCalled et Shauit, Sunny Duval et Laura Niquay, ainsi que Dramatik et Matthew Vachon. Soyez de la partie pour célébrer en musique et en images toute la richesse de notre diversité !",
+                      "arrondissement": "Le Plateau-Mont-Royal",
+                      "lieu":
+                        {
+                          "id": 633,
+                          "activitesID": 9999,
+                          "nom": "Here",
+                          "lat": -45.123,
+                          "lng": 73.123
+                        },
+                      "dates":
+                        [
+                          {
+                            "id": 634,
+                            "activitesID": 9999,
+                            "dates": "2012-12-12",
+                            "day": 12,
+                            "month": 12,
+                            "year": 2012
+                          }
+                        ]
+                    }
+                  ]
+      queryParameters:
+        id:
+          displayName: ID
+          type: int
+          description: ID of the activite
+          example: 1
+          required: True
+        nom:
+          displayName: Nom
+          type: string
+          description: Name of the Activites
+          example: Tous réunis autour de la table à Anjou
+          required: false
+        description:
+          displayName: Description
+          type: string
+          description: Description of the Activites
+          example: Tous réunis autour de la table à Anjou
+          required: false
+        arrondissement:
+          displayName: Arrondissement
+          type: string
+          description: Arrondissement of the Activites
+          example: Le Plateau-Mont-Royal
+          required: false
+        nomLieu:
+          displayName: Nom
+          type: string
+          description: Name of the Location
+          example: Parc Benny
+          required: false
+        lng:
+          displayName: Latitude
+          type: double
+          description: Latitude is the "Y" geographic coordinate
+          example: 75.123
+          required: false
+        lat:
+          displayName: Longitude
+          type: double
+          description: Longitude is the "X" geographic coordinate
+          example: -45.123
+          required: false
+        date:
+          displayName: Date
+          type: List<String>
+          description: Liste of date
+          example: -45.123
+          required: false
+    post:
+      description: Create a existing activites
+        responses:
+          201:
+            body:
+              application/json:
+                example:
+                  [
+                    {
+                      "id": 543,
+                      "nom": "Vélo Paradiso au Plateau-Mont-Royal",
+                      "description": "Un vélo projecteur sillonnera les 19 arrondissements de Montréal pour diffuser, sur grand écran, les meilleurs courts-métrages réalisés par des réalisateurs autochtones dans le cadre du Wapikoni mobile, ainsi que des vidéoclips issus de collaborations entre musiciens autochtones et de nos communautés culturelles. Avec : La Bronze et Esther Pennell, Random Recipe et Natasha Kanapé Fontaine, SoCalled et Shauit, Sunny Duval et Laura Niquay, ainsi que Dramatik et Matthew Vachon. Soyez de la partie pour célébrer en musique et en images toute la richesse de notre diversité !",
+                      "arrondissement": "Le Plateau-Mont-Royal",
+                      "lieu":
+                        {
+                          "id": 633,
+                          "activitesID": 9999,
+                          "nom": "Here",
+                          "lat": -45.123,
+                          "lng": 73.123
+                        },
+                      "dates":
+                        [
+                          {
+                            "id": 634,
+                            "activitesID": 9999,
+                            "dates": "2012-12-12",
+                            "day": 12,
+                            "month": 12,
+                            "year": 2012
+                          }
+                        ]
+                    }
+                  ]
+      queryParameters:
+        id:
+          displayName: ID
+          type: int
+          description: ID of the activite
+          example: 1
+          required: True
+        nom:
+          displayName: Nom
+          type: string
+          description: Name of the Activites
+          example: Tous réunis autour de la table à Anjou
+          required: false
+        description:
+          displayName: Description
+          type: string
+          description: Description of the Activites
+          example: Tous réunis autour de la table à Anjou
+          required: false
+        arrondissement:
+          displayName: Arrondissement
+          type: string
+          description: Arrondissement of the Activites
+          example: Le Plateau-Mont-Royal
+          required: false
+        nomLieu:
+          displayName: Nom
+          type: string
+          description: Name of the Location
+          example: Parc Benny
+          required: false
+        lng:
+          displayName: Latitude
+          type: double
+          description: Latitude is the "Y" geographic coordinate
+          example: 75.123
+          required: false
+        lat:
+          displayName: Longitude
+          type: double
+          description: Longitude is the "X" geographic coordinate
+          example: -45.123
+          required: false
+        date:
+          displayName: Date
+          type: List<String>
+          description: Liste of date
+          example: -45.123
+          required: false
+    /{id}
+    delete:
+      description: Delete a existing activites
+        responses:
+          200:
+      queryParameters:
+        id:
+          displayName: ID
+          type: int
+          description: ID of the activite
+          example: 1
+          required: True
+/stations-bixi:
+  get:
+    description: Retrieve list of Bixi Station within radius of location with certain minimun amount of bixi
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                [
+                  {
+                      "id": 3,
+                      "s": "Clark/Evans",
+                      "n": 6003,
+                      "st": 1,
+                      "b": false,
+                      "su": false,
+                      "m": false,
+                      "lu": 1500678720000,
+                      "lc": 1500678980000,
+                      "bk": false,
+                      "bl": false,
+                      "la": 45.5111313,
+                      "lo": -73.5679092,
+                      "da": 4,
+                      "dx": 0,
+                      "ba": 15,
+                      "bx": 0
+                  }
+                ]
+    queryParameters:
+      min_bixi_dispo:
+        displayName: Available Bixi
+        type: int
+        description: Minimal Available Number of Bixi in a station
+        example: 0
+        required: false
+      rayon:
+        displayName: Rayon
+        type: double
+        description: Radius of a circle or sphere is any of the line segments from its center to its perimeter in meter
+        example: 5000
+        required: false
+      lat:
+        displayName: Latitude
+        type: double
+        description: Latitude is the "Y" geographic coordinate
+        example: 75.123
+        required: false
+      lng:
+        displayName: Longitude
+        type: double
+        description: Longitude is the "X" geographic coordinate
+        example: -45.123
+        required: false

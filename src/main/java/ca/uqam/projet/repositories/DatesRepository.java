@@ -1,15 +1,10 @@
 package ca.uqam.projet.repositories;
 
-import java.util.*;
-import java.util.stream.*;
-import java.sql.*;
-
 import ca.uqam.projet.resources.*;
-
+import java.sql.*;
+import java.util.*;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.dao.*;
 import org.springframework.jdbc.core.*;
-import org.springframework.jdbc.support.*;
 import org.springframework.stereotype.*;
 
 @Component
@@ -40,13 +35,25 @@ public class DatesRepository {
         return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new DatesRowMapper());
     }
 
-
-        private String getINSERT_STMT(Dates dates){
-        return " insert into dates (id, activitesID, dates, schedule)"
-            + " values (?, ?, ?, (DATE '"+dates.getMonth()+"-"+dates.getMonth()+"-"+dates.getDay()+"' ) )"
-            + " on conflict do nothing";
+    private String getFIND_BY_ACTIVITES_ID_STMT(int id) {
+        return " select"
+                + "     *"
+                + " from"
+                + "   dates"
+                + " where"
+                + "   activitesID = " + id;
     }
-    
+
+    public List<Dates> findByActivitesId(int id) {
+        return jdbcTemplate.query(getFIND_BY_ACTIVITES_ID_STMT(id), new DatesRowMapper());
+    }
+
+    private String getINSERT_STMT(Dates dates) {
+        return " insert into dates (id, activitesID, dates, schedule)"
+                + " values (?, ?, ?, (DATE '" + dates.getMonth() + "-" + dates.getMonth() + "-" + dates.getDay() + "' ) )"
+                + " on conflict do nothing";
+    }
+
     public int insert(Dates dates) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(getINSERT_STMT(dates));
@@ -57,12 +64,42 @@ public class DatesRepository {
         });
     }
 
+    private String getUPDATE_STMT(Dates dates) {
+        return " UPDATE dates "
+                + " SET dates = ?, "
+                + " schedule = (DATE '" + dates.getMonth() + "-" + dates.getMonth() + "-" + dates.getDay() + "' ) )"
+                + " WHERE id = ? "
+                + " AND activitesID = ? ";
+    }
+
+    public int update(Dates dates) {
+        return jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(getUPDATE_STMT(dates));
+            ps.setString(1, dates.getDates());
+            ps.setInt(2, dates.getId());
+            ps.setInt(3, dates.getActivitesID());
+            return ps;
+        });
+    }
+
     private static final String CLEAR_STMT
-            = " delete from dates";
+            = " DELETE from dates";
 
     public int clear() {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(CLEAR_STMT);
+            return ps;
+        });
+    }
+
+    private static final String DELETE_BY_ACTIVITES_ID_STMT
+            = " DELETE FROM dates "
+            + "WHERE activitesID = ?";
+
+    public int deleteByActivitesID(int id) {
+        return jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(DELETE_BY_ACTIVITES_ID_STMT);
+            ps.setInt(1, id);
             return ps;
         });
     }
