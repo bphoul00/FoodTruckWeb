@@ -1,1 +1,12 @@
 #mapid { height: 360px; }
+
+tr {
+width: 100%;
+display: inline-table;
+}
+tbody{
+  overflow-y: scroll;
+  height: 600px;
+  width: 98%;
+  position: absolute;
+}

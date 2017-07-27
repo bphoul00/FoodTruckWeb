@@ -7,11 +7,16 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
+import javax.annotation.PostConstruct;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.stereotype.*;
 
+/**
+ *
+ * @author Bernard
+ */
 @Component
 public class FetchBixi {
 
@@ -20,7 +25,11 @@ public class FetchBixi {
     @Autowired
     BixiRepository bixiRepository;
 
+    /**
+     * Vider la tableeu de Bixi et remplacez-la en récupérant les informations toutes les 10 minutes
+     */
     @Scheduled(cron = "0 */10 * * * ?") // à toutes les 10 minutes.
+    @PostConstruct
     public void execute() {
 
         ObjectMapper mapper = new ObjectMapper();

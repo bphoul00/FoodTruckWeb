@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
+import javax.annotation.PostConstruct;
 import org.slf4j.*;
 
 import org.springframework.beans.factory.annotation.*;
@@ -30,7 +31,11 @@ public class FetchActivites {
     private ActivitesRepository repository;
 
     @Scheduled(cron = "0 0 */5 * * ?") // à toutes les 2 secondes.
-    // Actuellement désactivé.
+    @PostConstruct
+    
+      /**
+     * Vider la tableau de Activites, Date et Lieu et remplacez-la en récupérant les informations toutes les 5 heures.
+     */
     public void execute() {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -44,7 +49,8 @@ public class FetchActivites {
             repository.clear();
 
             for (Activites activite : myObjects) {
-                int newLieuID = IDMaker.createID();
+                IDMaker idMaker = IDMaker.getInstance();
+                int newLieuID = idMaker.createID();
 
                 //set foreign LieuID
                 Lieu bufferLieu = activite.getLieu();
@@ -58,7 +64,7 @@ public class FetchActivites {
 
                 //set foreign DatesID
                 for (Dates date : activite.getDates()) {
-                    int newDatesID = IDMaker.createID();
+                    int newDatesID = idMaker.createID();
                     date.setId(newDatesID);
                     date.setActivitesID(activite.getId());
                     datesRepository.insert(date);

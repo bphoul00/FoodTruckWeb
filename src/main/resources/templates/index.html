@@ -14,6 +14,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
+
 </head>
 <body>
 
@@ -28,10 +29,10 @@
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <form id="search-form" class="navbar-form navbar-right" role="search">
           <div class="form-group">
-            <input type="date"  id="inputStartingDate" class="form-control" placeholder="Debut(YYYY-MM-DD)" Required="true"/>
-            <input type="date"  id="inputEndingDate" class="form-control" placeholder="Fin(YYYY-MM-DD)" Required="true"/>
+            <input type="date"  id="inputStartingDate" class="form-control" max="9999-12-12" Required="true"/>
+            <input type="date"  id="inputEndingDate" class="form-control" max="9999-12-12" Required="true"/>
           </div>
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn btn-info">
             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
           </button>
         </form>
@@ -43,18 +44,23 @@
       <div class="col-md-12">
         <div id="mapid">
         </div>
-
-        <div>
+        <a href="#" class="btn btn-info btn-lg" data-toggle="collapse" data-target="#formActivites">
+        <span class="glyphicon glyphicon-plus"></span> Formulaire
+        </a>
+        <a href="#" class="btn btn-info btn-lg" data-toggle="collapse" data-target="#tableauActivites">
+        <span class="glyphicon glyphicon-plus"></span> Tableau
+        </a>
+        <div id="formActivites" class="collapse">
           <div class="container">
             <div class="btn-group" data-toggle="buttons">
               <br/>
-              <label class="btn btn-primary active" onclick="idNotOnly()">
+              <label class="btn btn-info active" onclick="idNotOnly()">
                 <input type="radio"  name="typeOfRequest" value="post"   /> Creation
               </label>
-              <label class="btn btn-primary" onclick="idNotOnly()">
+              <label class="btn btn-info" onclick="idNotOnly()">
                 <input type="radio"  name="typeOfRequest"  value="put"  /> Mise A Jour
               </label>
-              <label class="btn btn-primary" onclick="idOnly()">
+              <label class="btn btn-info" onclick="idOnly()">
                 <input type="radio"  name="typeOfRequest"  value="delete"  /> Supprime
               </label>
             </div>
@@ -92,16 +98,18 @@
               </div>
               <div class="col-sm-10">
                 <label for="inputDate">Date:</label>
-                <input type="date" id="inputDate" class="form-control" placeholder="Date" name="date" />
+                <input type="date" id="inputDate" class="form-control" placeholder="Date" name="date" max="9999-12-12" />
               </div>
               <div class="col-sm-10">
                 <br/>
-                <button type="submit" class="btn btn-primary">Envoyer</button>
+                <button type="submit" class="btn btn-info">Envoyer</button>
               </div>
             </div>
           </form>
         </div>
+        <div id="tableauActivites" class="collapse">
         <div id="liste-activites">
+        </div>
         </div>
       </div>
     </div>

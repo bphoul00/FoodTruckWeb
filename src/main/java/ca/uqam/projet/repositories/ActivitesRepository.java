@@ -1,5 +1,6 @@
 package ca.uqam.projet.repositories;
 
+import ca.uqam.projet.tasks.IDMaker;
 import ca.uqam.projet.resources.*;
 import ca.uqam.projet.tasks.Validation;
 import java.sql.*;
@@ -25,6 +26,10 @@ public class ActivitesRepository {
             + " from"
             + "   activites";
 
+    /**
+     * Chercher toutes activites du BD et retourne la liste activites
+     * @return  liste d'activités 
+     */
     public List<Activites> findAll() {
         List<Activites> listAct = jdbcTemplate.query(FIND_ALL_STMT, new ActivitesRowMapper());
         listAct = joinListDatesAndLieu(listAct);
@@ -40,6 +45,11 @@ public class ActivitesRepository {
             + " WHERE "
             + " id = ?";
 
+    /**
+     * Chercher un activite avec id du BD et le retourne  
+     * @param id
+     * @return activités 
+     */
     public Activites findById(int id) {
         Activites activite = jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new ActivitesRowMapper());
         activite = joinDatesAndLieu(activite);
@@ -56,7 +66,39 @@ public class ActivitesRepository {
                 + "ST_GeomFromText('POINT (" + lng + " " + lat + ")',4326)) < "
                 + rayon;
     }
+    
+    /**
+     * Décider de la meilleure méthode à utiliser pour trouver la liste des activités
+     * @param du
+     * @param au
+     * @param lng
+     * @param lat
+     * @param rayon
+     * @return liste d'activités 
+     */
+    public ArrayList<Activites> decideToFindByDistanceLocationAndTime(String du, String au, Double lng, Double lat, Double  rayon)
+    {
+        if (du != null && au != null && lng != null && lat != null && rayon != 0) {
+            return (ArrayList) findByDistanceLocationAndTime(du, au, lng, lat, rayon);
+        } else if (du != null && au != null) {
+            return (ArrayList) findByTime(du, au);
 
+        } else if (lng != null && lat != null && rayon != null) {
+            return (ArrayList) findByDistanceLocation(lng, lat, rayon);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Trouvez une liste d'activités dans la rayon à partir d'un location donné et entre certain interval de temps
+     * @param duString
+     * @param auString
+     * @param lng
+     * @param lat
+     * @param rayon
+     * @return liste d'activités 
+     */
     public List<Activites> findByDistanceLocationAndTime(String duString, String auString, double lng, double lat, double rayon) {
         if (!validation.findByDistanceLocationAndTimeValidation(duString, auString, lng, lat, rayon)) {
             return null;
@@ -74,6 +116,12 @@ public class ActivitesRepository {
                 + "BETWEEN (DATE '" + duStringDate + "') AND ('" + auStringDate + "')";
     }
 
+    /**
+     * Trouvez une liste d'activités  entre certain interval de temps
+     * @param duString
+     * @param auString
+     * @return
+     */
     public List<Activites> findByTime(String duString, String auString) {
         if (!validation.findByTimeValidation(duString, auString)) {
             return null;
@@ -91,6 +139,13 @@ public class ActivitesRepository {
                 + rayon;
     }
 
+    /**
+     * Trouvez une liste d'activités dans la rayon à partir d'un location donné.
+     * @param lng
+     * @param lat
+     * @param rayon
+     * @return liste d'activités 
+     */
     public List<Activites> findByDistanceLocation(double lng, double lat, double rayon) {
         if (!validation.findByTimeValidation(lng, lat, rayon)) {
             return null;
@@ -103,6 +158,10 @@ public class ActivitesRepository {
     private static final String CLEAR_STMT
             = " DELETE FROM activites";
 
+    /**
+     * Vider le base de donne.
+     * @return
+     */
     public int clear() {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(CLEAR_STMT);
@@ -115,6 +174,11 @@ public class ActivitesRepository {
             + " VALUES (?, ?, ?, ? )"
             + " on conflict do nothing";
 
+    /**
+     * Create un nouvelle activite dans la BD
+     * @param activite
+     * @return nombre de changement performer
+     */
     public int insert(Activites activite) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(INSERT_STMT);
@@ -134,6 +198,11 @@ public class ActivitesRepository {
                 + " WHERE id = " + id;
     }
 
+    /**
+     * Mise a jour un activite dans la base de donne
+     * @param activite
+     * @return nombre de range modifier
+     */
     public int update(Activites activite) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(getUPDATE_STMT(activite.getNom(), activite.getDescription(), activite.getArrondissement(), activite.getId()));
@@ -141,6 +210,18 @@ public class ActivitesRepository {
         });
     }
 
+    /**
+     * Rétablir la relation entre Lieu et Date avec l'activité et creer dans la BD.
+     * @param id
+     * @param nom
+     * @param description
+     * @param arrondissement
+     * @param nomLieu
+     * @param lng
+     * @param lat
+     * @param dates
+     * @return
+     */
     public Activites createdEvent(int id, String nom, String description, String arrondissement, String nomLieu, double lng, double lat, String[] dates) {
         if (!validation.EventValidation(lng, lat, dates)) {
             return null;
@@ -151,8 +232,8 @@ public class ActivitesRepository {
             listDate.add(new Dates(datesString));
         }
         activite.setDates(listDate);
-
-        int newLieuID = IDMaker.createID();
+        IDMaker idMaker = IDMaker.getInstance();
+        int newLieuID = idMaker.createID();
         Lieu lieu = new Lieu(nomLieu, lat, lng);
         lieu.setId(newLieuID);
         lieu.setActivitesID(activite.getId());
@@ -166,7 +247,7 @@ public class ActivitesRepository {
 
         //set foreign DatesID
         for (Dates date : activite.getDates()) {
-            int newDatesID = IDMaker.createID();
+            int newDatesID = idMaker.createID();
             date.setId(newDatesID);
             date.setActivitesID(activite.getId());
             datesRepository.insert(date);
@@ -175,6 +256,18 @@ public class ActivitesRepository {
         return activite;
     }
 
+    /**
+     * Rétablir la relation entre Lieu et Date avec l'activité et Misa a jour l'activite dans la BD.
+     * @param id
+     * @param nom
+     * @param description
+     * @param arrondissement
+     * @param nomLieu
+     * @param lng
+     * @param lat
+     * @param dates
+     * @return
+     */
     public Activites updatedEvent(int id, String nom, String description, String arrondissement, String nomLieu, Double lng, Double lat, String[] dates) {
         if (!validation.EventValidation(lng, lat, dates)) {
             return null;
@@ -208,7 +301,8 @@ public class ActivitesRepository {
         }
         if (dates != null) {
             for (String dateString : dates) {
-                int newDatesID = IDMaker.createID();
+                IDMaker idMaker = IDMaker.getInstance();
+                int newDatesID = idMaker.createID();
                 newListDate.add(new Dates(newDatesID, currentActivite.getId(), dateString));
                 datesRepository.deleteByActivitesID(currentActivite.getId());
                 currentActivite.setDates(newListDate);
@@ -224,6 +318,11 @@ public class ActivitesRepository {
             = " DELETE FROM activites "
             + "WHERE id = ?";
 
+    /**
+     * Suprimmer un activite par id dans la BD
+     * @param id
+     * @return
+     */
     public int deleteEvent(int id) {
         datesRepository.deleteByActivitesID(id);
         lieuRepository.deleteByActivitesID(id);
@@ -234,6 +333,11 @@ public class ActivitesRepository {
         });
     }
 
+    /**
+     * Suprimmer un activite par id dans la BD
+     * @param id
+     * @return
+     */
     public int deleteByActivitesID(int id) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(DELETE_BY_ACTIVITES_ID_STMT);
@@ -242,6 +346,11 @@ public class ActivitesRepository {
         });
     }
 
+    /**
+     *  Rétablir la relation entre Lieu et Date avec l'activité
+     * @param activite
+     * @return
+     */
     public Activites joinDatesAndLieu(Activites activite) {
         activite.setDates((ArrayList) datesRepository.findByActivitesId(activite.getId()));
         Lieu newLieu = lieuRepository.findByActivitesId(activite.getId());
@@ -251,6 +360,11 @@ public class ActivitesRepository {
         return activite;
     }
 
+    /**
+     *  Rétablir la liste d'activité la relation entre Lieu et Date avec l'activité
+     * @param listActivites
+     * @return
+     */
     public List<Activites> joinListDatesAndLieu(List<Activites> listActivites) {
         for (Activites activite : listActivites) {
             joinDatesAndLieu(activite);
@@ -262,6 +376,11 @@ public class ActivitesRepository {
 
 class ActivitesRowMapper implements RowMapper<Activites> {
 
+       /**
+     * Transforme le activite du BD in java object Activites
+     * @param rs
+     * @return java object Activites
+     */
     public Activites mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Activites(
                 rs.getInt("id"),

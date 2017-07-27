@@ -8,12 +8,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 public class ActivitesController {
 
     @Autowired
     ActivitesRepository repository;
 
+    /**
+     * Rechercher liste activites par distance du location, temp ou les deux 
+     * @param du
+     * @param au
+     * @param lng
+     * @param lat
+     * @param rayon
+     * @return ResponseEntity<>
+     */
     @RequestMapping(value = "/activites-375e", method = RequestMethod.GET)
     public ResponseEntity<List<Activites>> findByDistanceLocationAndTime(
             @RequestParam(value = "du", required = false) String du,
@@ -44,6 +54,18 @@ public class ActivitesController {
         }
     }
 
+    /**
+     * Mise a jour un activites 
+     * @param id
+     * @param nom
+     * @param description
+     * @param arrondissement
+     * @param nomLieu
+     * @param lng
+     * @param lat
+     * @param date
+     * @return ResponseEntity<>
+     */
     @RequestMapping(value = "/activites-375e", method = RequestMethod.PUT)
     public ResponseEntity<Activites> updateEvent(
             @RequestParam(value = "id", required = true) int id,
@@ -63,6 +85,18 @@ public class ActivitesController {
         }
     }
 
+    /**
+     * Creer et ajouter un activites 
+     * @param id
+     * @param nom
+     * @param description
+     * @param arrondissement
+     * @param nomLieu
+     * @param lng
+     * @param lat
+     * @param date
+     * @return ResponseEntity
+     */
     @RequestMapping(value = "/activites-375e", method = RequestMethod.POST)
     public ResponseEntity<Activites> createdEvent(
             @RequestParam(value = "id", required = true) int id,
@@ -82,6 +116,11 @@ public class ActivitesController {
         }
     }
 
+    /**
+     * Supprimer un activites 
+     * @param id
+     * @return ResponseEntity 
+     */
     @RequestMapping(value = "/activites-375e/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Integer> deleteEvent(@PathVariable("id") int id) {
         int rowDeleted = repository.deleteEvent(id);
@@ -91,11 +130,20 @@ public class ActivitesController {
         return new ResponseEntity<>(rowDeleted, HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Rechercher tout  le liste activites.
+     * @return ResponseEntity
+     */
     @RequestMapping("/activites")
     public List<Activites> findAll() {
         return repository.findAll();
     }
 
+    /**
+     * Rechercher un activite pas id.
+     * @param id
+     * @return ResponseEntity
+     */
     @RequestMapping("/activites/{id}")
     public Activites findById(@PathVariable("id") int id) {
         return repository.findById(id);

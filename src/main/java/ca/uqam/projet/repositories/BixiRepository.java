@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.*;
 
+
 @Component
 public class BixiRepository {
 
@@ -22,6 +23,10 @@ public class BixiRepository {
             + " FROM"
             + " bixi";
 
+    /**
+     * Chercher toutes Bixi du BD et retourne la liste Bixi
+     * @return liste de Bixi
+     */
     public List<Bixi> findAll() {
         return jdbcTemplate.query(FIND_ALL_STMT, new BixiRowMapper());
     }
@@ -34,6 +39,11 @@ public class BixiRepository {
             + " WHERE "
             + " id = ?";
 
+    /**
+     * Chercher un Bixi avec id du BD et retourne le Bixi
+     * @param id
+     * @return Bixi
+     */
     public Bixi findById(int id) {
         return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new BixiRowMapper());
     }
@@ -49,6 +59,11 @@ public class BixiRepository {
                 + " ON CONFLICT DO NOTHING";
     }
 
+    /**
+     * Create un nouvelle Bixi dans la BD
+     * @param bixi
+     * @return nombre de changement performer
+     */
     public int insert(Bixi bixi) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(getINSERT_STMT(bixi));
@@ -81,6 +96,14 @@ public class BixiRepository {
                 + rayon;
     }
 
+    /**
+     * Trouvez une liste de Bixi dans la rayon à partir d'un location donné avec un nombre minimal de Bixi
+     * @param lat
+     * @param lng
+     * @param rayon
+     * @param numberBixiAvailable
+     * @return Liste de bixi
+     */
     public List<Bixi> findByDistanceLocationAndNumberBixi(double lat, double lng, double rayon, int numberBixiAvailable) {
         if (!validation.findByDistanceLocationAndNumberBixiValidation(lat, lng, rayon, numberBixiAvailable)) {
             return null;
@@ -92,6 +115,10 @@ public class BixiRepository {
     private static final String CLEAR_STMT
             = " DELETE FROM bixi";
 
+    /**
+     * Vider le BD tableau bixi
+     * @return
+     */
     public int clear() {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(CLEAR_STMT);
@@ -103,6 +130,11 @@ public class BixiRepository {
 
 class BixiRowMapper implements RowMapper<Bixi> {
 
+      /**
+     * Transforme le bixi du BD in java object Bixi
+     * @param rs
+     * @return java object bixi
+     */
     public Bixi mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Bixi(
                 rs.getInt("id"),

@@ -13,15 +13,6 @@ public class LieuRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private static final String FIND_ALL_STMT
-            = " select"
-            + "     *"
-            + " from"
-            + "   lieu";
-
-    public List<Lieu> findAll() {
-        return jdbcTemplate.query(FIND_ALL_STMT, new LieuRowMapper());
-    }
 
     private static final String FIND_BY_ID_STMT
             = " select"
@@ -31,6 +22,11 @@ public class LieuRepository {
             + " where"
             + "   id = ?";
 
+    /**
+     * Chercher un Lieu avec id du BD et retourne le Lieu
+     * @param id
+     * @return Lieu
+     */
     public Lieu findById(int id) {
         return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new LieuRowMapper());
     }
@@ -43,6 +39,11 @@ public class LieuRepository {
             + " WHERE "
             + " activitesID = ?";
 
+    /**
+     * Chercher un Lieu qui a un relation avec un specifique activite dans BD et retourne le Lieu
+     * @param id
+     * @return Lieu
+     */
     public Lieu findByActivitesId(int id) {
         return jdbcTemplate.queryForObject(FIND_BY_ACTIVITES_ID_STMT, new Object[]{id}, new LieuRowMapper());
     }
@@ -53,6 +54,11 @@ public class LieuRepository {
                 + " on conflict do nothing";
     }
 
+    /**
+     * Create un nouvelle lieu dans la BD
+     * @param lieu
+     * @return nombre de changement performer
+     */
     public int insert(Lieu lieu) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(getINSERT_STMT(lieu));
@@ -71,6 +77,11 @@ public class LieuRepository {
                 + " AND activitesID = ?";
     }
 
+    /**
+     * Mise a jouer un lieu dans la BD
+     * @param lieu
+     * @return nombre de changement performer
+     */
     public int update(Lieu lieu) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(getUPDATE_STMT(lieu));
@@ -84,6 +95,10 @@ public class LieuRepository {
     private static final String CLEAR_STMT
             = " delete from lieu";
 
+    /**
+     *
+     * @return nombre de changement performer
+     */
     public int clear() {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(CLEAR_STMT);
@@ -95,6 +110,11 @@ public class LieuRepository {
             = " DELETE FROM lieu "
             + "WHERE activitesID = ?";
 
+    /**
+     * Vider le BD tableau Date
+     * @param id
+     * @return nombre de changement performer
+     */
     public int deleteByActivitesID(int id) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(DELETE_BY_ACTIVITES_ID_STMT);
@@ -107,6 +127,11 @@ public class LieuRepository {
 
 class LieuRowMapper implements RowMapper<Lieu> {
 
+      /**
+     * Transforme le lieu du BD in java object date
+     * @param rs
+     * @return java object Dates
+     */
     public Lieu mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Lieu(
                 rs.getString("nom"),

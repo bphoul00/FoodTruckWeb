@@ -1,23 +1,28 @@
+//Pour obtenier http://localhost:8080/
 var baseURL = new URL(window.location.origin);
 
-
+//Pour ajouter l'événement dans la ligne du tableau.
 var renderActivites = function (activite) {
     createMarker(activite.lieu.lng, activite.lieu.lat);
     mymap.fitBounds(layerMarkers.getBounds());
     return '<tr class=\'clickable-row\' onclick=changeCenter('+activite.lieu.lng+','+activite.lieu.lat+') ><td>'+activite.id+'</td><td>'+activite.nom+'</td><td>'+activite.description +'</td></tr>';
 };
 
+//Pour ajouter la table
 var renderListeActivites = function (activites) {
-    return '<table class="table"><thead><tr><th>ID</th><th>Nom de l\'activite</th><th>Description de l\'activite</th> </tr></thead><tbody>' + activites.map(renderActivites).join('') + '</tbody></table>';
+    return '<table class="table table-bordered table-hover table-striped"><thead class="thead-inverse"><tr><th>ID</th><th>Nom de l\'activite</th><th>Description de l\'activite</th> </tr></thead><tbody>' + activites.map(renderActivites).join('') + '</tbody></table>';
 };
 
+//Pour modifier la vue de la carte lorsque la fonction est appelée
 function changeCenter(lat, lng){mymap.setView(new L.LatLng(lat, lng),14)};
 
+//Pour ajouter la table dans le bon div
 var installerListeActivites = function (listeActivitesHtml) {
     document.getElementById('liste-activites').innerHTML = "";
     document.getElementById('liste-activites').innerHTML = listeActivitesHtml;
     console.dir(listeActivitesHtml);
 };
+
 
 var fetchActivites = function (url) {
     fetch(url).then(function (resp) {
@@ -29,6 +34,7 @@ var fetchActivites = function (url) {
     });
 };
 
+//Pour envoyer la requête de mise à jour à l'api.
 function update(inputID, inputNom, inputDescription, inputArrondissement, inputNomLieu, inputLongitude, inputLatitude, inputDate) {
     var url = new URL('/activites-375e', baseURL);
     url.searchParams.append('id', inputID.value);
@@ -43,12 +49,14 @@ function update(inputID, inputNom, inputDescription, inputArrondissement, inputN
         var xhttp = new XMLHttpRequest();
         xhttp.open("PUT", url, true);
         xhttp.send();
+        fetchActivites(new URL('/activites', baseURL));
     } else {
         alert("Valeur incorrecte entrée");
     }
 }
 ;
 
+//Pour envoyer la requête de creation à l'api de creation de activites.
 function create(inputID, inputNom, inputDescription, inputArrondissement, inputNomLieu, inputLongitude, inputLatitude, inputDate) {
     var url = new URL('/activites-375e', baseURL);
     url.searchParams.append('id', inputID.value);
@@ -63,12 +71,14 @@ function create(inputID, inputNom, inputDescription, inputArrondissement, inputN
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", url, true);
         xhttp.send();
+        fetchActivites(new URL('/activites', baseURL));
     } else {
         alert("Valeur incorrecte entrée");
     }
 }
 ;
 
+//Pour envoyer la requête de supprimer à l'api .
 function deleteById(inputID) {
     var url = new URL('/activites-375e/' + inputID.value, baseURL);
     var xhttp = new XMLHttpRequest();
@@ -78,7 +88,7 @@ function deleteById(inputID) {
 
 }
 ;
-
+//Former le url pour demande liste de activites.
 var search = function (date1,date2) {
   removeMarkers();
   var url = new URL('/activites-375e', baseURL);
@@ -88,6 +98,7 @@ var search = function (date1,date2) {
   fetchActivites(url);
 };
 
+//Appel de recherche de list activites entre les date entres
 var readSearchFormulaire = function () {
     var form = document.getElementById('search-form');
     var startingDate = document.getElementById('inputStartingDate');
@@ -98,6 +109,7 @@ var readSearchFormulaire = function () {
     });
 };
 
+//Obtenir le type de request
 var requestType = function () {
     var radioButtons = document.getElementsByName("typeOfRequest");
     for (var x = 0; x < radioButtons.length; x++) {
@@ -106,7 +118,7 @@ var requestType = function () {
         }
     }
 }
-
+//Obtenir les information du formulaire
 var readModifyFormulaire = function () {
     var form = document.getElementById('activites-form');
     var inputID = document.getElementById('inputID');
@@ -141,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 //map
-
 var mymap = L.map('mapid').setView([45.509813, -73.569152], 13);
 
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -167,9 +178,10 @@ var createMarker = function (x, y) {
 //Add marker layer to the map
 mymap.addLayer(layerMarkers);
 
+//Valider les dates
 var reDate = new RegExp("^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$");
 
-
+//Valider les coordonnée
 function testcoordinate(lat, lng) {
     if (lat.value < -90 || lat.value > 90) {
         return false;
@@ -180,6 +192,7 @@ function testcoordinate(lat, lng) {
     }
 }
 
+//Désactiver des input quand appuyer sur certain bouton
 function idOnly(){
     document.getElementById("inputNom").disabled = true;
     document.getElementById("inputDescription").disabled = true;
@@ -190,6 +203,7 @@ function idOnly(){
     document.getElementById("inputDate").disabled = true;
 }
 
+//Activer des input quand appuyer sur certain bouton
 function idNotOnly(){
     document.getElementById("inputNom").disabled = false;
     document.getElementById("inputDescription").disabled = false;

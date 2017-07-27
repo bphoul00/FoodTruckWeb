@@ -12,6 +12,11 @@ public class ApplicationController {
     @Autowired
     ActivitesRepository repository;
 
+    /**
+     * Routing l'utilisateur a page index.
+     * @param model
+     * @return model
+     */
     @RequestMapping("/")
     public String index(Model model) {
         return "index";

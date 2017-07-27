@@ -7,21 +7,12 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.*;
 
+
 @Component
 public class DatesRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    private static final String FIND_ALL_STMT
-            = " select"
-            + "     *"
-            + " from"
-            + "   dates";
-
-    public List<Dates> findAll() {
-        return jdbcTemplate.query(FIND_ALL_STMT, new DatesRowMapper());
-    }
 
     private static final String FIND_BY_ID_STMT
             = " select"
@@ -31,6 +22,11 @@ public class DatesRepository {
             + " where"
             + "   id = ?";
 
+    /**
+     * Chercher un Date avec id du BD et retourne le Date
+     * @param id
+     * @return Date
+     */
     public Dates findById(int id) {
         return jdbcTemplate.queryForObject(FIND_BY_ID_STMT, new Object[]{id}, new DatesRowMapper());
     }
@@ -44,6 +40,11 @@ public class DatesRepository {
                 + "   activitesID = " + id;
     }
 
+    /**
+     * Chercher un Date qui a un relation avec un specifique activite dans BD et retourne la liste de Date
+     * @param id
+     * @return liste de Date
+     */
     public List<Dates> findByActivitesId(int id) {
         return jdbcTemplate.query(getFIND_BY_ACTIVITES_ID_STMT(id), new DatesRowMapper());
     }
@@ -54,6 +55,11 @@ public class DatesRepository {
                 + " on conflict do nothing";
     }
 
+    /**
+     * Create un nouvelle Date dans la BD
+     * @param dates
+     * @return nombre de changement performer
+     */
     public int insert(Dates dates) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(getINSERT_STMT(dates));
@@ -72,6 +78,11 @@ public class DatesRepository {
                 + " AND activitesID = ? ";
     }
 
+    /**
+     * Mise a jouer un Date dans la BD
+     * @param dates
+     * @return nombre de changement performer
+     */
     public int update(Dates dates) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(getUPDATE_STMT(dates));
@@ -85,6 +96,10 @@ public class DatesRepository {
     private static final String CLEAR_STMT
             = " DELETE from dates";
 
+    /**
+     * Vider le BD tableau Date
+     * @return  nombre de changement performer
+     */
     public int clear() {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(CLEAR_STMT);
@@ -96,6 +111,11 @@ public class DatesRepository {
             = " DELETE FROM dates "
             + "WHERE activitesID = ?";
 
+    /**
+     * Supprimer un Date avec id du BD.
+     * @param id
+     * @return nombre de changement performer
+     */
     public int deleteByActivitesID(int id) {
         return jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(DELETE_BY_ACTIVITES_ID_STMT);
@@ -108,6 +128,11 @@ public class DatesRepository {
 
 class DatesRowMapper implements RowMapper<Dates> {
 
+          /**
+     * Transforme le date du BD in java object date
+     * @param rs
+     * @return java object Dates
+     */
     public Dates mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Dates(
                 rs.getInt("id"),
